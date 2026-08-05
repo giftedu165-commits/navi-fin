@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="부산 연안 선박 운항자를 위한 해양생물 관찰 신고와 수중소음 영향 지도">
+  <meta property="og:title" content="BLUE TRACE | 부산 연안 생태 항해 지도">
+  <meta property="og:description" content="현장 생물 관찰을 기록하고 선박 수중소음의 생태 영향을 확인하는 운항자용 지도">
+  <title>BLUE TRACE | 부산 연안 생태 항해 지도</title>
+  <link rel="stylesheet" href="leaflet.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="NAVI FIN 처음으로">
+      <span class="brand-mark" aria-hidden="true">NF</span>
+      <span><strong>NAVI FIN</strong><small>BUSAN COAST WATCH</small></span>
+    </a>
+    <nav aria-label="주요 메뉴">
+      <a href="#watch-map">관찰 지도</a>
+      <a href="#reports">신고 게시판</a>
+      <a href="#certificate-claim">혜택 인증</a>
+      <a href="#noise-impact">소음 영향</a>
+    </nav>
+    <span class="operator-chip">선박 운항자용</span>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">부산 연안 시민과 선박이 함께 만드는 생태 기록</p>
+        <h1>배가 지나는 길에서<br><em>생명의 흔적</em>을 남깁니다.</h1>
+        <p class="hero-lead">현재 위치나 지도 핀으로 관찰 지점을 정하고 발견한 생물종을 신고하세요. 한 개의 대표 항로를 따라 이동하는 선박의 수중소음 범위도 함께 확인할 수 있습니다.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#watch-map">관찰 신고 시작</a>
+          <a class="button ghost" href="#noise-impact">수중소음 영향 보기</a>
+          <a class="button esg" href="#esg-impact">ESG 경영 활용 보기</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="sonar sonar-one"></div><div class="sonar sonar-two"></div><div class="sonar sonar-three"></div>
+        <div class="hero-ship">▰</div>
+        <div class="route-stroke"></div>
+        <span class="visual-label">수중 방사소음<br><b>상대 영향권</b></span>
+      </div>
+    </section>
+
+    <section class="service-note" aria-label="데이터 안내">
+      <strong>현장 활용 안내</strong>
+      <p>선박·소음권·추천 항로는 교육용 시뮬레이션이며 항해용 정보가 아닙니다.</p>
+    </section>
+
+    <section class="map-section" id="watch-map">
+      <div class="section-heading">
+        <div><p class="kicker">LIVE FIELD BOARD</p><h2>연안 관찰 지도</h2></div>
+        <p class="section-copy">관찰권역과 시연 선박의 상대 소음 영향권이 겹치는지를 확인하세요.</p>
+      </div>
+
+      <section class="sea-now" aria-labelledby="seaNowTitle">
+        <div class="sea-now-head">
+          <div><span class="live-dot"></span><p class="kicker">BUSAN SEA NOW</p><h3 id="seaNowTitle">부산항 외해 해양 현황</h3></div>
+          <div><span id="seaUpdated">예보 모델 연결 중…</span><button type="button" id="refreshSea">↻ 새로고침</button></div>
+        </div>
+        <div class="sea-metrics" aria-live="polite">
+          <article><span class="metric-icon">≋</span><small>유의파고</small><strong id="waveHeight">--</strong><em>m</em></article>
+          <article><span class="metric-icon" id="waveArrow">↑</span><small>파향</small><strong id="waveDirection">--</strong><em>파도가 오는 방향</em></article>
+          <article><span class="metric-icon">◷</span><small>평균 파주기</small><strong id="wavePeriod">--</strong><em>초</em></article>
+          <article><span class="metric-icon">℃</span><small>표층 수온</small><strong id="seaTemperature">--</strong><em>°C</em></article>
+          <article><span class="metric-icon">➝</span><small>표층 해류</small><strong id="currentVelocity">--</strong><em>km/h</em></article>
+          <article><span class="metric-icon" id="currentArrow">↑</span><small>해류 방향</small><strong id="currentDirection">--</strong><em>흐르는 방향</em></article>
+        </div>
+        <p class="sea-now-note">Open-Meteo 해양모델 추정값 · 실측 및 항해용 정보 아님</p>
+      </section>
+
+      <div class="map-workspace">
+        <div class="map-card">
+          <div id="map" aria-label="부산 연안 생태 관찰 지도"></div>
+          <div class="risk-alert" id="riskAlert" hidden role="alert">
+            <span>!</span><div><b>수중소음 영향권 경고</b><p id="riskAlertText">관찰권역과 선박 영향권이 겹칩니다.</p></div>
+          </div>
+          <div class="map-legend" aria-label="지도 범례">
+            <strong>지도 범례</strong>
+            <span><i class="legend-route"></i>대표 운항 경로</span>
+            <span><i class="legend-zone"></i>생태 관찰·보호권역</span>
+            <span><i class="legend-report"></i>사용자 관찰 신고</span>
+            <span><i class="legend-range"></i>신고 기반 추정 활동권</span>
+            <span><i class="legend-marine"></i>API 해양예보 지점</span>
+          </div>
+          <div class="noise-scale" aria-label="상대 소음 범위">
+            <span><i class="noise-high"></i>가까운 영향</span><span><i class="noise-mid"></i>중간 영향</span><span><i class="noise-low"></i>먼 영향</span>
+          </div>
+          <div class="ship-control map-ship-control">
+            <label for="speedRange">선박 속도 <b id="speedValue">11 kn</b></label>
+            <input id="speedRange" type="range" min="6" max="18" value="11" step="1">
+            <span id="noiseLevel">상대 소음 영향: 보통</span>
+            <div class="certificate-mini">
+              <div><small id="certificateStatus">위험구역에서 8kn 이하 5분 감속</small><span class="certificate-buttons"><button type="button" id="certificateButton" disabled>확인서</button><button type="button" id="certificateReset" aria-label="감속 확인 진행 초기화" title="진행 초기화">↻</button></span></div>
+              <i><b id="certificateProgress"></b></i>
+            </div>
+          </div>
+        </div>
+
+        <aside class="report-panel" aria-labelledby="reportTitle">
+          <div class="panel-title"><span>FIELD REPORT</span><h3 id="reportTitle">생물 관찰 신고</h3></div>
+          <form id="reportForm">
+            <fieldset>
+              <legend><b>1</b> 관찰 위치</legend>
+              <div class="location-actions">
+                <button type="button" class="panel-button gps" id="gpsButton">◎ 현재 GPS 사용</button>
+                <button type="button" class="panel-button" id="pinButton">＋ 지도에서 선택</button>
+              </div>
+              <p class="position-help" id="positionHelp">지도를 클릭하거나 생성된 핀을 끌어 위치를 조정하세요.</p>
+              <div class="coordinates">
+                <label>위도<input id="latitude" type="text" readonly placeholder="선택 전"></label>
+                <label>경도<input id="longitude" type="text" readonly placeholder="선택 전"></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><b>2</b> 발견 생물종</legend>
+              <label class="field-label" for="speciesSelect">관찰한 종 또는 분류</label>
+              <select id="speciesSelect" required>
+                <option value="">선택해 주세요</option>
+                <optgroup label="보호·주요 생물">
+                  <option value="나팔고둥" data-icon="🐚">나팔고둥</option>
+                  <option value="잘피류" data-icon="🌿">잘피류</option>
+                  <option value="감태·대황" data-icon="🌱">감태·대황</option>
+                  <option value="왕우럭조개" data-icon="🐚">왕우럭조개</option>
+                </optgroup>
+                <optgroup label="현장 분류">
+                  <option value="어류" data-icon="🐟">어류</option>
+                  <option value="저서생물" data-icon="🪸">저서생물</option>
+                  <option value="산호·해면류" data-icon="🪸">산호·해면류</option>
+                  <option value="해파리류" data-icon="🪼">해파리류</option>
+                  <option value="기타 패류" data-icon="🐚">기타 패류</option>
+                  <option value="기타" data-icon="●">기타</option>
+                </optgroup>
+              </select>
+              <div class="species-preview" id="speciesPreview">종을 선택하면 지도 표시에 사용할 분류가 나타납니다.</div>
+              <div class="range-control">
+                <label for="activityRange"><span>추정 활동 반경</span><b id="activityRangeValue">1.0 km</b></label>
+                <input id="activityRange" type="range" min="0.1" max="10" value="1" step="0.1">
+                <p>실제 서식지가 아닌 신고 기반 참고 범위입니다.</p>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><b>3</b> 현장 사진 <span>선택</span></legend>
+              <label class="photo-upload" for="observationPhoto">
+                <span class="photo-upload-icon">＋</span>
+                <span><b>사진 촬영 또는 첨부</b><small>JPG·PNG·WEBP · 저장 전에 자동 축소됩니다.</small></span>
+              </label>
+              <input id="observationPhoto" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
+              <div class="photo-preview" id="photoPreview" hidden>
+                <img id="photoPreviewImage" alt="첨부할 관찰 사진 미리보기">
+                <div><b>사진이 준비되었습니다.</b><small id="photoStatus"></small></div>
+                <button type="button" id="removePhoto">삭제</button>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><b>4</b> 관찰 내용</legend>
+              <label class="field-label" for="reportNote">개체 수·상태·주변 상황 <span>선택</span></label>
+              <textarea id="reportNote" maxlength="180" placeholder="예: 암반 주변에서 2개체 관찰, 사진 촬영함"></textarea>
+              <div class="form-footer"><button class="submit-report" type="submit">관찰 신고 등록</button></div>
+            </fieldset>
+          </form>
+        </aside>
+      </div>
+
+      <section class="passage-control" aria-labelledby="passageControlTitle">
+        <div class="route-guidance">
+          <div>
+            <p class="kicker">ROUTE REFERENCE</p>
+            <h3 id="passageControlTitle">남해 외해 → 부산 북항 시연 경로</h3>
+            <strong class="route-mode" id="routeMode">API 경로 계산 중</strong>
+            <p id="routeCondition">남해·거제·가덕도·오륙도 외해의 해양모델을 확인하는 중입니다.</p>
+          </div>
+          <button type="button" id="routeOverviewButton">항로 전체 보기</button>
+        </div>
+        <p class="route-disclaimer">시연용 추천 경로 · 실제 운항은 최신 해도와 부산항 VTS 지시 우선</p>
+      </section>
+    </section>
+
+    <section class="reports-section" id="reports">
+      <div class="section-heading">
+        <div><p class="kicker">COMMUNITY LOG</p><h2>최근 관찰 신고</h2></div>
+        <p class="section-copy">Supabase 온라인 게시판에 연결되어 다른 기기에서도 신고 위치·추정 활동권·현장 사진을 함께 확인할 수 있습니다. 신고 내용은 전문가 검증 전의 사용자 관찰 기록입니다.</p>
+      </div>
+      <div class="report-summary"><span id="reportCount">0건의 관찰 기록</span><button type="button" id="clearReports">내 기기 기록 모두 지우기</button></div>
+      <div class="report-board" id="reportBoard" aria-live="polite"></div>
+    </section>
+
+    <section class="claim-section" id="certificate-claim">
+      <div class="claim-heading">
+        <div>
+          <p class="kicker">QUIET PASSAGE REWARD</p>
+          <h2>저소음 운항 확인서 인증</h2>
+          <p>위험구역에서 감속한 뒤 발급받은 PDF 확인서를 올리고 지원 혜택을 확인합니다.</p>
+        </div>
+        <div class="benefit-actions" aria-label="인증 혜택">
+          <span>인증 혜택</span>
+          <button type="button" data-benefit="보조금 신청">보조금 신청</button>
+          <button type="button" data-benefit="항만 사용료 할인">항만 사용료 할인</button>
+        </div>
+      </div>
+      <div class="claim-workspace">
+        <form class="claim-form" id="certificateClaimForm">
+          <div class="claim-step"><b>1</b><div><strong>확인번호 입력</strong><span>발급된 확인서의 번호를 입력하세요.</span></div></div>
+          <label for="certificateClaimNumber">확인번호</label>
+          <input id="certificateClaimNumber" name="certificateNumber" type="text" inputmode="text" autocomplete="off" placeholder="NF-DEMO-2026-123456" pattern="NF-DEMO-[0-9]{4}-[0-9]{6}" required>
+
+          <div class="claim-step"><b>2</b><div><strong>PDF 확인서 첨부</strong><span>인쇄 화면에서 ‘PDF로 저장’한 파일을 선택하세요.</span></div></div>
+          <label class="claim-file" for="certificateClaimFile">
+            <span aria-hidden="true">PDF</span>
+            <strong id="claimFileName">확인서 PDF 선택</strong>
+            <small>PDF만 가능 · 최대 5MB</small>
+          </label>
+          <input class="visually-hidden" id="certificateClaimFile" type="file" accept="application/pdf,.pdf" required>
+          <button class="claim-submit" id="certificateClaimSubmit" type="submit">확인서 인증하기</button>
+          <p class="claim-status" id="certificateClaimStatus">온라인 연결 후 인증할 수 있습니다.</p>
+        </form>
+        <div class="claim-history">
+          <div><div><p class="kicker">MY REWARDS</p><h3>인증 내역</h3></div></div>
+          <div id="certificateClaimList" class="claim-list" aria-live="polite">
+            <p class="claim-empty">아직 인증한 확인서가 없습니다.</p>
+          </div>
+          <small class="claim-gesture-hint">← 옆으로 밀어서 숨기기</small>
+        </div>
+      </div>
+      <p class="claim-disclaimer"><b>시연 안내</b> 혜택 버튼은 서비스 흐름을 보여주기 위한 기능입니다. 실제 보조금이나 항만 사용료 할인은 관계기관의 제도와 심사 기준이 연결되어야 합니다.</p>
+    </section>
+
+    <section class="impact-section" id="noise-impact">
+      <div class="impact-intro">
+        <p class="kicker">UNDERWATER NOISE</p>
+        <h2>선박 소음은 바닷속의<br>‘정보’를 가릴 수 있습니다.</h2>
+        <p>물속에서 소리는 멀리 이동합니다. 어류와 무척추동물을 포함한 해양생물은 먹이·위험·서식 환경을 파악하는 데 소리를 이용하므로, 선박 소음의 크기와 지속시간, 거리, 생물종에 따라 영향이 달라질 수 있습니다.</p>
+      </div>
+      <div class="impact-grid">
+        <article><span>01</span><h3>산란·무리 신호 가림</h3><p>선박의 지속음이 어류가 내는 낮은 주파수 신호와 겹칠 수 있습니다.</p></article>
+        <article><span>02</span><h3>먹이·이동 행동 변화</h3><p>소음 노출 조건에 따라 먹이활동이나 서식지 이용이 달라질 수 있습니다.</p></article>
+        <article><span>03</span><h3>가까운 고강도 노출</h3><p>음압과 노출시간이 클수록 청각·신체 영향 가능성도 커집니다.</p></article>
+      </div>
+      <div class="frequency-section">
+        <div class="frequency-heading">
+          <div><p class="kicker">FREQUENCY OVERLAP</p><h3>어떤 소리 대역이<br>어떤 생물과 겹칠까요?</h3></div>
+          <p>선박은 추진기 공동현상(프로펠러 주변 기포), 엔진과 보조기계 때문에 넓은 주파수의 소리를 냅니다. 아래는 측정값이나 피해 판정 기준이 아니라, 생물의 소리 이용 범위와 겹칠 가능성을 설명하는 교육용 분류입니다.</p>
+        </div>
+        <div class="fish-impact-gallery">
+          <article>
+            <figure><img src="assets/fish-yellow-croaker.jpg" alt="참조기 사진" loading="lazy"><figcaption>국립국어원 · CC BY-SA 2.0 KR</figcaption></figure>
+            <div><span>민어과 · 저주파 발성 어류</span><h4>참조기</h4><p>산란과 무리 행동에 쓰는 낮은 소리가 선박 저주파에 가려질 가능성을 살펴봐야 합니다.</p><b>우선 비교할 선박대역 20–500 Hz</b></div>
+          </article>
+          <article>
+            <figure><img src="assets/fish-pacific-herring.jpg" alt="청어 사진" loading="lazy"><figcaption>OpenCage · CC BY-SA 2.5</figcaption></figure>
+            <div><span>청어과 · 청각 민감 어류</span><h4>청어</h4><p>부레와 청각기관이 연결된 그룹은 주변 소리 변화와 지속적인 선박 소음에 민감할 수 있습니다.</p><b>우선 비교할 선박대역 20 Hz–1 kHz</b></div>
+          </article>
+        </div>
+        <div class="frequency-list compact">
+          <article class="frequency-card low-band"><div class="frequency-value"><strong>20–200</strong><span>Hz</span></div><div class="spectrum-line"><i></i></div><div class="frequency-content"><span class="source-chip">63·125 Hz 대표 감시대역</span><h4>대형 선박 저주파 × 민어과·청어과</h4></div></article>
+          <article class="frequency-card mid-band"><div class="frequency-value"><strong>200–1k</strong><span>Hz</span></div><div class="spectrum-line"><i></i></div><div class="frequency-content"><span class="source-chip">추진기 공동현상</span><h4>다수 경골어류의 소통·행동 범위</h4></div></article>
+          <article class="frequency-card high-band"><div class="frequency-value"><strong>1–10k</strong><span>Hz</span></div><div class="spectrum-line"><i></i></div><div class="frequency-content"><span class="source-chip">소형 선박·기계 고조파</span><h4>일부 어류와 무척추동물의 감지 범위</h4></div></article>
+        </div>
+        <p class="frequency-caution"><b>해석 주의</b> 실제 영향은 음압, 입자 움직임, 노출시간, 거리, 수심과 해저지형, 생물종·성장단계에 따라 달라집니다. 사진 속 종은 음향 특성을 설명하는 대표 예시이며 부산 현장의 피해가 확인됐다는 뜻은 아닙니다.</p>
+      </div>
+      <div class="operator-guide">
+        <div><p class="kicker">QUIETER OPERATION</p><h3>운항자가 실천할 수 있는 것</h3></div>
+        <ol>
+          <li><b>안전과 관제 지시를 우선</b><span>기상·조류·교통 상황을 먼저 확인합니다.</span></li>
+          <li><b>불필요한 급가속을 줄이기</b><span>가능한 조건에서 속도와 엔진 부하 변화를 부드럽게 관리합니다.</span></li>
+          <li><b>민감 구역과 거리 확보</b><span>항로와 안전이 허용하는 범위에서 보호·관찰권역 외곽을 이용합니다.</span></li>
+          <li><b>관찰 기록 남기기</b><span>생물 출몰 위치와 상태를 기록해 다음 운항 판단에 활용합니다.</span></li>
+        </ol>
+      </div>
+      <div class="source-row">
+        <strong>근거 자료</strong>
+        <a href="https://www.imo.org/en/mediacentre/hottopics/pages/noise.aspx" target="_blank" rel="noopener">IMO 선박 수중소음</a>
+        <a href="https://oceanservice.noaa.gov/facts/ocean-noise.html" target="_blank" rel="noopener">NOAA 해양소음</a>
+        <a href="https://www.fisheries.noaa.gov/insight/understanding-sound-ocean" target="_blank" rel="noopener">NOAA 수중음향 영향</a>
+        <a href="https://www.fisheries.noaa.gov/new-england-mid-atlantic/science-data/fish-and-invertebrate-acoustics" target="_blank" rel="noopener">NOAA 어류·무척추동물 음향</a>
+        <a href="https://mcc.jrc.ec.europa.eu/documents/201406241446.pdf" target="_blank" rel="noopener">EU 63·125 Hz 감시 지침</a>
+        <a href="https://open-meteo.com/en/docs/marine-weather-api" target="_blank" rel="noopener">Open-Meteo 해양예보 API</a>
+        <a href="https://commons.wikimedia.org/wiki/File:Larimichthys_polyactis.jpg" target="_blank" rel="noopener">참조기 사진 출처</a>
+        <a href="https://commons.wikimedia.org/wiki/File:Clupea_pallasii_by_OpenCage.jpg" target="_blank" rel="noopener">청어 사진 출처</a>
+      </div>
+    </section>
+
+    <section class="esg-section" id="esg-impact">
+      <div class="esg-intro">
+        <div>
+          <p class="kicker">ESG 활용</p>
+          <h2>운항 기록을<br>환경 실천의 근거로</h2>
+        </div>
+        <p>감속 확인서와 생물 관찰 기록을 모아 기업의 해양환경 활동을 설명하는 자료로 활용할 수 있습니다.</p>
+      </div>
+      <div class="esg-grid">
+        <article class="esg-card environment">
+          <span class="esg-letter">E</span>
+          <div><h3>환경</h3><p>위험구역 감속과 저소음 운항 기록</p></div>
+          <b>감속 확인서</b>
+        </article>
+        <article class="esg-card social">
+          <span class="esg-letter">S</span>
+          <div><h3>사회</h3><p>운항자의 생물 관찰과 현장 정보 공유</p></div>
+          <b>관찰 신고</b>
+        </article>
+        <article class="esg-card governance">
+          <span class="esg-letter">G</span>
+          <div><h3>관리</h3><p>확인번호별 인증 내역 관리</p></div>
+          <b>인증 내역</b>
+        </article>
+      </div>
+      <div class="esg-record-row" aria-label="ESG 기록 자료">
+        <strong>남는 기록</strong>
+        <span>관찰 위치·사진</span>
+        <span>감속 확인서</span>
+        <span>혜택 인증 내역</span>
+      </div>
+      <p class="esg-note">시연용 기록 화면이며 공인 ESG 평가나 인증을 대신하지 않습니다.</p>
+    </section>
+  </main>
+
+  <footer><div><strong>BLUE TRACE</strong><span>부산 연안 생태 관찰·저소음 항해 프로젝트</span></div><p>항해 안전·관제 지시가 항상 우선이며, 본 서비스는 공식 항해용 해도나 실시간 위험 판정 시스템이 아닙니다.</p></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog class="photo-dialog" id="photoDialog" aria-labelledby="photoDialogTitle">
+    <button type="button" class="photo-dialog-close" id="closePhotoDialog" aria-label="사진 닫기">×</button>
+    <img id="photoDialogImage" alt="관찰 신고 원본 사진">
+    <div><p class="kicker">FIELD PHOTO</p><h3 id="photoDialogTitle">현장 관찰 사진</h3><p id="photoDialogMeta"></p></div>
+  </dialog>
+  <dialog class="certificate-dialog" id="certificateDialog" aria-labelledby="certificateTitle">
+    <button type="button" class="certificate-close" id="closeCertificate" aria-label="확인서 닫기">×</button>
+    <div class="certificate-sheet">
+      <p class="certificate-eyebrow">NAVI FIN · QUIET PASSAGE</p>
+      <h2 id="certificateTitle">저소음 운항 실천 확인서</h2>
+      <p class="certificate-lead">시연 선박의 상대 소음권이 생태 위험구역과 겹치는 동안 감속 조건을 유지했음을 확인합니다.</p>
+      <dl>
+        <div><dt>대상 선박</dt><dd>웹 시연 선박</dd></div>
+        <div><dt>확인 구역</dt><dd id="certificateZone">-</dd></div>
+        <div><dt>확인 속도</dt><dd id="certificateSpeed">-</dd></div>
+        <div><dt>발급 일시</dt><dd id="certificateDate">-</dd></div>
+        <div><dt>확인 번호</dt><dd id="certificateNumber">-</dd></div>
+      </dl>
+      <div class="certificate-sign"><div><b>NAVI FIN</b><span>부산 연안 생태 항해 프로젝트</span></div><i>N<br>F</i></div>
+      <p class="certificate-disclaimer">본 문서는 웹 시뮬레이션 결과로 발급되는 교육용 실천 확인서이며, AIS·관제기관·공인기관이 발급한 공식 인증서가 아닙니다.</p>
+    </div>
+    <div class="certificate-actions"><button type="button" id="printCertificate">인쇄·PDF 저장</button></div>
+  </dialog>
+
+  <script src="leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
