@@ -99,3 +99,5 @@ html,body{max-width:100%;overflow-x:hidden}body{padding-bottom:108px}main,[data-
 @media(max-width:600px){.esg-benefit-flow{display:grid;grid-template-columns:1fr;padding:15px}.esg-benefit-flow i{display:none}.esg-benefit-grid{gap:10px}.esg-benefit-card{min-height:0;padding:21px}.esg-benefit-card>b{margin-top:20px}.esg-benefit-summary{align-items:flex-start;flex-direction:column;gap:8px}.esg-benefit-summary strong{margin:0 0 3px}.esg-benefit-summary span{padding:0;border:0}}
 /* Match the ecological observation/protection legend to the red map zones. */
 .map-legend .legend-zone{border:2px dashed #e94035;background:rgba(239,106,82,.28)}
+/* Show each NAVI FIN action and its direct ESG-management effect. */
+.esg-impact-result{display:grid;gap:5px;margin-top:auto;padding-top:22px}.esg-impact-result:before{content:"";display:block;width:34px;margin-bottom:7px;border-top:2px solid var(--benefit-color)}.esg-impact-result small{color:#819499;font-size:8px;font-weight:850}.esg-impact-result strong{color:#173d48;font-size:11px;line-height:1.45}.esg-benefit-head span{font-size:13px}.esg-benefit-head small{color:#536d73;font-size:9px;letter-spacing:0}
