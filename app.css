@@ -90,3 +90,6 @@ html,body{max-width:100%;overflow-x:hidden}body{padding-bottom:108px}main,[data-
 /* Keep the entry warning below the speed and certificate controls on phones. */
 @media(max-width:760px){.risk-alert{top:170px}}
 @media(max-width:390px){.risk-alert{top:176px}}
+/* Keep the entry warning below the speed and certificate controls on phones. */
+@media(max-width:760px){.risk-alert{top:170px}}
+@media(max-width:390px){.risk-alert{top:176px}}
