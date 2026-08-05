@@ -9,6 +9,17 @@
   <title>BLUE TRACE | 부산 연안 생태 항해 지도</title>
   <link rel="stylesheet" href="leaflet.css">
   <link rel="stylesheet" href="app.css?v=20260805-print1">
+  <style>
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      html, body { width: auto !important; min-height: 0 !important; margin: 0 !important; background: #fff !important; }
+      body > :not(.certificate-dialog) { display: none !important; }
+      .certificate-dialog { display: block !important; position: static !important; inset: auto !important; width: 100% !important; max-width: none !important; height: auto !important; max-height: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: #fff !important; box-shadow: none !important; overflow: visible !important; }
+      .certificate-dialog::backdrop { display: none !important; }
+      .certificate-sheet { break-inside: avoid !important; page-break-inside: avoid !important; width: auto !important; min-height: 0 !important; margin: 0 !important; padding: 18mm 16mm !important; box-shadow: none !important; }
+      .certificate-close, .certificate-actions { display: none !important; }
+    }
+  </style>
 </head>
 <body>
   <header class="topbar">
