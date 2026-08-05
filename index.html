@@ -8,7 +8,7 @@
   <meta property="og:description" content="현장 생물 관찰을 기록하고 선박 수중소음의 생태 영향을 확인하는 운항자용 지도">
   <title>BLUE TRACE | 부산 연안 생태 항해 지도</title>
   <link rel="stylesheet" href="leaflet.css">
-  <link rel="stylesheet" href="app.css?v=20260805-layout3">
+  <link rel="stylesheet" href="app.css?v=20260805-tabs2">
   <style>
     @media print {
       @page { size: A4 portrait; margin: 12mm; }
@@ -28,16 +28,15 @@
       <span><strong>NAVI FIN</strong><small>BUSAN COAST WATCH</small></span>
     </a>
     <nav aria-label="주요 메뉴">
-      <a href="#watch-map">관찰 지도</a>
-      <a href="#reports">신고 게시판</a>
-      <a href="#certificate-claim">혜택 인증</a>
-      <a href="#noise-impact">소음 영향</a>
+      <a href="#watch-map">관찰 신고</a>
+      <a href="#noise-impact">수중소음 영향</a>
+      <a href="#esg-impact">ESG 경영</a>
     </nav>
     <span class="operator-chip">선박 운항자용</span>
   </header>
 
   <main id="top">
-    <section class="hero">
+    <section class="hero" data-app-view="observe">
       <div class="hero-copy">
         <p class="kicker">부산 연안 시민과 선박이 함께 만드는 생태 기록</p>
         <h1>배가 지나는 길에서<br><em>생명의 흔적</em>을 남깁니다.</h1>
@@ -56,12 +55,12 @@
       </div>
     </section>
 
-    <section class="service-note" aria-label="데이터 안내">
+    <section class="service-note" aria-label="데이터 안내" data-app-view="observe">
       <strong>현장 활용 안내</strong>
       <p>선박·소음권·추천 항로는 교육용 시뮬레이션이며 항해용 정보가 아닙니다.</p>
     </section>
 
-    <section class="map-section" id="watch-map">
+    <section class="map-section" id="watch-map" data-app-view="observe">
       <div class="section-heading">
         <div><p class="kicker">LIVE FIELD BOARD</p><h2>연안 관찰 지도</h2></div>
         <p class="section-copy">관찰권역과 시연 선박의 상대 소음 영향권이 겹치는지를 확인하세요.</p>
@@ -193,7 +192,7 @@
       </section>
     </section>
 
-    <section class="reports-section" id="reports">
+    <section class="reports-section" id="reports" data-app-view="observe">
       <div class="section-heading">
         <div><p class="kicker">COMMUNITY LOG</p><h2>최근 관찰 신고</h2></div>
         <p class="section-copy">Supabase 온라인 게시판에 연결되어 다른 기기에서도 신고 위치·추정 활동권·현장 사진을 함께 확인할 수 있습니다. 신고 내용은 전문가 검증 전의 사용자 관찰 기록입니다.</p>
@@ -202,7 +201,7 @@
       <div class="report-board" id="reportBoard" aria-live="polite"></div>
     </section>
 
-    <section class="claim-section" id="certificate-claim">
+    <section class="claim-section" id="certificate-claim" data-app-view="esg">
       <div class="claim-heading">
         <div>
           <p class="kicker">QUIET PASSAGE REWARD</p>
@@ -242,7 +241,7 @@
       <p class="claim-disclaimer"><b>시연 안내</b> 혜택 버튼은 서비스 흐름을 보여주기 위한 기능입니다. 실제 보조금이나 항만 사용료 할인은 관계기관의 제도와 심사 기준이 연결되어야 합니다.</p>
     </section>
 
-    <section class="impact-section" id="noise-impact">
+    <section class="impact-section" id="noise-impact" data-app-view="noise">
       <div class="impact-intro">
         <p class="kicker">UNDERWATER NOISE</p>
         <h2>선박 소음은 바닷속의<br>‘정보’를 가릴 수 있습니다.</h2>
@@ -297,7 +296,7 @@
       </div>
     </section>
 
-    <section class="esg-section" id="esg-impact">
+    <section class="esg-section" id="esg-impact" data-app-view="esg">
       <div class="esg-intro">
         <div>
           <p class="kicker">ESG 활용</p>
@@ -333,6 +332,20 @@
   </main>
 
   <footer><div><strong>BLUE TRACE</strong><span>부산 연안 생태 관찰·저소음 항해 프로젝트</span></div><p>항해 안전·관제 지시가 항상 우선이며, 본 서비스는 공식 항해용 해도나 실시간 위험 판정 시스템이 아닙니다.</p></footer>
+  <nav class="floating-view-nav" aria-label="주요 화면 전환">
+    <button type="button" class="is-active" data-view-target="observe" aria-pressed="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-4.2 7-11V5l-7-3-7 3v5c0 6.8 7 11 7 11Z"/><path d="M9 11.5 11 14l4-5"/></svg>
+      <span>관찰 신고</span>
+    </button>
+    <button type="button" data-view-target="noise" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg>
+      <span>수중소음 영향</span>
+    </button>
+    <button type="button" data-view-target="esg" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4c-7 0-12 3.4-12 9 0 2.5 1.8 4 4.2 4C17 17 20 11.5 20 4Z"/><path d="M4 20c2.5-5 6.5-8 12-10"/></svg>
+      <span>ESG 경영</span>
+    </button>
+  </nav>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <dialog class="photo-dialog" id="photoDialog" aria-labelledby="photoDialogTitle">
     <button type="button" class="photo-dialog-close" id="closePhotoDialog" aria-label="사진 닫기">×</button>
@@ -362,7 +375,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="supabase-client.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=20260805-tabs2"></script>
 </body>
 </html>
 
