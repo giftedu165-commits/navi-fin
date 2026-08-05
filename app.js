@@ -118,11 +118,7 @@
   gpsButton.addEventListener('click',()=>{
     if(!navigator.geolocation){showToast('이 브라우저는 GPS 위치 기능을 지원하지 않습니다.');return;}
     gpsButton.disabled=true;gpsButton.textContent='위치 확인 중…';positionHelp.textContent='기기의 위치 권한을 확인하고 있습니다.';
-    navigator.geolocation.getCurrentPosition(pos=>{setDraftLocation(pos.coords.latitude,pos.coords.longitude,true);gpsButton.disabled=false;gpsButton.textContent='◎ 현재 GPS 사용';showToast('현재 위치를 관찰 핀으로 설정했습니다.');},err=>{gpsButton.disabled=false;gpsButton.textContent='◎ 현재 GPS 사용';positionHelp.textContent='GPS를 사용할 수 없습니다. 지도에서 위치를 선택해 주세요.';showToast(err.code===1?'위치 권한이 허용되지 않았습니다.':'현재 위치를 확인하지 못했습니다.');},{enableHighAccuracy:true,timeout:10000,maximumAge:30000});
-  });
-
-  const speciesSelect=document.getElementById('speciesSelect'),speciesPreview=document.getElementById('speciesPreview'),activityRange=document.getElementById('activityRange'),activityRangeValue=document.getElementById('activityRangeValue');
-  const activityDefaults={'나팔고둥':.3,'잘피류':.2,'감태·대황':.2,'왕우럭조개':.2,'어류':3,'저서생물':.3,'산호·해면류':.2,'해파리류':5,'기타 패류':.3,'기타':1};
+    navigator.geolocation.getCurrentPosition(pos=>{setDraftLocation(pos.coords.latitude,pos.coords.longitude,true);gpsButton.disabled=false;gpsButton.textContent='◎ 현재 GPS 사용';showToast('현재 위치를 관찰 핀으로 설정했습니다.');},err=>{gpsButton.disabled=false;gpsButton.textContent='◎ 현재 GPS 사용';positionHelp.textCon…136 tokens truncated…'나팔고둥':.3,'잘피류':.2,'감태·대황':.2,'왕우럭조개':.2,'어류':3,'저서생물':.3,'산호·해면류':.2,'해파리류':5,'기타 패류':.3,'기타':1};
   function updateActivityRange(){activityRangeValue.textContent=`${Number(activityRange.value).toFixed(1)} km`;}
   activityRange.addEventListener('input',updateActivityRange);updateActivityRange();
   speciesSelect.addEventListener('change',()=>{const info=speciesInfo[speciesSelect.value];speciesPreview.textContent=info?`${info[0]} ${info[1]} · 신고 지점에 사용자 관찰 표식으로 표시됩니다.`:'종을 선택하면 지도 표시에 사용할 분류가 나타납니다.';if(activityDefaults[speciesSelect.value]){activityRange.value=activityDefaults[speciesSelect.value];updateActivityRange();}});
@@ -231,6 +227,15 @@
       showToast('온라인 연결에 실패해 이 기기에만 저장합니다.');
     }
   }
+  const appViewSections=Array.from(document.querySelectorAll('[data-app-view]'));
+  const appViewButtons=Array.from(document.querySelectorAll('[data-view-target]'));
+  const viewHashes={observe:'#watch-map',noise:'#noise-impact',esg:'#esg-impact'};
+  function viewFromHash(hash){if(hash==='#noise-impact')return'noise';if(hash==='#esg-impact'||hash==='#certificate-claim')return'esg';return'observe';}
+  function activateAppView(view,updateUrl=true){const next=viewHashes[view]?view:'observe';appViewSections.forEach(section=>{section.hidden=section.dataset.appView!==next;});appViewButtons.forEach(button=>{const active=button.dataset.viewTarget===next;button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));});document.body.dataset.activeView=next;if(updateUrl)history.replaceState(null,'',viewHashes[next]);window.scrollTo({top:0,left:0,behavior:'auto'});setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'auto'}),0);if(next==='observe')setTimeout(()=>map.invalidateSize(),60);}
+  appViewButtons.forEach(button=>button.addEventListener('click',()=>activateAppView(button.dataset.viewTarget)));
+  document.addEventListener('click',event=>{const link=event.target.closest('a[href^="#"]');if(!link)return;const target=link.getAttribute('href');if(target==='#watch-map'||target==='#reports'||target==='#top'){event.preventDefault();activateAppView('observe');}else if(target==='#noise-impact'){event.preventDefault();activateAppView('noise');}else if(target==='#esg-impact'||target==='#certificate-claim'){event.preventDefault();activateAppView('esg');}});
+  window.addEventListener('popstate',()=>activateAppView(viewFromHash(location.hash),false));
+  activateAppView(viewFromHash(location.hash),false);
   initializeReports();
 })();
 
